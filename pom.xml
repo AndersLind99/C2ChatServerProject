@@ -5,18 +5,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>chat-server</artifactId>
+    <artifactId>echo_classdemo</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <finalName>chat-server</finalName>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
+    </dependencies>
+
     <build>
+        <finalName>${finalName}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -24,9 +32,33 @@
                 <version>2.3.2</version>
                 <configuration>
                     <!-- Do not change this name, it you count on following our instructions -->
-                    <finalName>chat-server</finalName>
                 </configuration>
             </plugin>
+
+            <!-- Uncomment this plugin if you have any dependencies in your project
+              Change 'appendAssemblyId' to false, if you want the assembly with dependencies to override
+              the original jar-file -->
+            <!--
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <appendAssemblyId>true</appendAssemblyId>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+            -->
+
+
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.2.0</version>
@@ -44,7 +76,8 @@
                                 <resource>
                                     <directory>${basedir}/target</directory>
                                     <includes>
-                                        <include>chat-server.jar</include>
+                                        <!--                                        <include>my-server.jar</include>-->
+                                        <include>${finalName}.jar</include>
                                     </includes>
                                 </resource>
                             </resources>
