@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 # Don't change this name UNLESS you know what you are doing
-#NO Spaces allowed on either side of the '=' below
+#NO Spaces allowed on either side of the '='
 
-SERVER_NAME="my-server"
+#SERVER_NAME below MUST mach the DIRECTORY created on your droplet in the /var folder
+SERVER_NAME="chat-server"
+
 DROPLET_URL="138.68.100.110"
 # Change the root below to the non-root user you have setup:
 DROPLET_USER="root"
@@ -17,6 +19,7 @@ echo "##############################"
 # this will compile your code, and copy the jar-file to the deploy folder
 
 # mvn package
+
 
 echo "##############################"
 echo "Deploying The project..."
