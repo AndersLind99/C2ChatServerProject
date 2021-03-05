@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 
 public class ChatServer {
 
-
+// first commit
     //Call server with arguments like this: 0.0.0.0 8088 logfile.log
     public static void main(String[] args) throws UnknownHostException {
         String ip ="localhost";
