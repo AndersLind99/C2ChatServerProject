@@ -36,26 +36,36 @@ public class Server
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-            System.out.println("Creating a new handler for this client...");
 
-            // Create a new handler object for handling this request.
-            ClientHandler mtch = new ClientHandler(s,"client " + i, dis, dos);
+            StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
+            String cmd = st.nextToken();
+            String username = st.nextToken();
 
-            // Create a new Thread with this object.
-            Thread t = new Thread(mtch);
 
-            System.out.println("Adding this client to active client list");
 
-            // add this client to active clients list
-            ar.add(mtch);
+            if(cmd.equals("CONNECT")){
 
-            // start the thread.
-            t.start();
+                System.out.println("Creating a new handler for this client...");
 
-            // increment i for new client.
-            // i is used for naming only, and can be replaced
-            // by any naming scheme
-            i++;
+                // Create a new handler object for handling this request.
+                ClientHandler mtch = new ClientHandler(s,username, dis, dos);
+
+                // Create a new Thread with this object.
+                Thread t = new Thread(mtch);
+
+                System.out.println("Adding this client to active client list");
+
+                // add this client to active clients list
+                ar.add(mtch);
+
+                // start the thread.
+                t.start();
+
+                // increment i for new client.
+                // i is used for naming only, and can be replaced
+                // by any naming scheme
+                i++;
+            }
 
         }
     }
@@ -101,8 +111,8 @@ class ClientHandler implements Runnable
 
                 // break the string into message and recipient part
                 StringTokenizer st = new StringTokenizer(received, "#");
-                String MsgToSend = st.nextToken();
                 String recipient = st.nextToken();
+                String MsgToSend = st.nextToken();
 
                 // search for the recipient in the connected devices list.
                 // ar is the vector storing client of active users
