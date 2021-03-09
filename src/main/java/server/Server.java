@@ -142,8 +142,26 @@ class ClientHandler implements Runnable {
                     // search for the recipient in the connected devices list.
                     // ar is the vector storing client of active users
                     for (ClientHandler mc : Server.ar) {
-                        // if the recipient is found, write on its
-                        // output stream
+
+                        if (recipient.contains(",")){
+                            st = new StringTokenizer(recipient,",");
+                            for (int i = 0; st.hasMoreTokens(); i++) {
+                                recipient = st.nextToken();
+
+                                for (ClientHandler allMc : Server.ar) {
+
+                                    if (allMc.name.equals(recipient) && allMc.isloggedin == true) {
+                                        allMc.dos.writeUTF(this.name + " : " + MsgToSend);
+                                        break;
+                                    } break;
+                                }
+
+                            }
+
+
+                        }
+
+
                         if (mc.name.equals(recipient) && mc.isloggedin == true) {
                             mc.dos.writeUTF(this.name + " : " + MsgToSend);
                             break;
