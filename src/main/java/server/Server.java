@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-// TODO Add syntax to messages. #SEND#(User)#(Message)
 
 // Server class
 public class Server {
@@ -73,13 +72,12 @@ public class Server {
                     }
                     i++;
 
-                    if (i == userList.size()){
+                    if (i == userList.size()) {
 
                         dos.writeUTF("username doesn't exist");
                         s.close();
                         break;
                     }
-
 
 
                 }
@@ -116,6 +114,7 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
 
+// TODO Add syntax to messages. #SEND#(User)#(Message)
         String received;
         while (true) {
             try {
@@ -133,17 +132,31 @@ class ClientHandler implements Runnable {
 
                 // break the string into message and recipient part
                 StringTokenizer st = new StringTokenizer(received, "#");
+                String send = st.nextToken();
                 String recipient = st.nextToken();
                 String MsgToSend = st.nextToken();
 
-                // search for the recipient in the connected devices list.
-                // ar is the vector storing client of active users
-                for (ClientHandler mc : Server.ar) {
-                    // if the recipient is found, write on its
-                    // output stream
-                    if (mc.name.equals(recipient) && mc.isloggedin == true) {
-                        mc.dos.writeUTF(this.name + " : " + MsgToSend);
-                        break;
+
+                if (send.equals("SEND")) {
+
+                    // search for the recipient in the connected devices list.
+                    // ar is the vector storing client of active users
+                    for (ClientHandler mc : Server.ar) {
+                        // if the recipient is found, write on its
+                        // output stream
+                        if (mc.name.equals(recipient) && mc.isloggedin == true) {
+                            mc.dos.writeUTF(this.name + " : " + MsgToSend);
+                            break;
+                        }
+
+                        if (recipient.equals("*") && mc.isloggedin == true) {
+
+                            for (ClientHandler allMc : Server.ar) {
+                                allMc.dos.writeUTF(this.name + " : " + MsgToSend);
+                            }
+                            break;
+
+                        }
                     }
                 }
             } catch (IOException e) {
