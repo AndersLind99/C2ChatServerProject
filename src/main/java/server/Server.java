@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-// creating user check
+// TODO Add syntax to messages. #SEND#(User)#(Message)
 
 // Server class
 public class Server {
