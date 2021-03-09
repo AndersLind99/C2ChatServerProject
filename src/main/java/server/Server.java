@@ -17,6 +17,10 @@ public class Server {
 
 
     public static void main(String[] args) throws IOException {
+        // list of approved users
+        UserLogin userlogin = new UserLogin();
+        List<String> userList = userlogin.listOfUsers();
+
         // server is listening on port 1234
         ServerSocket ss = new ServerSocket(1234);
 
@@ -39,35 +43,50 @@ public class Server {
             String cmd = st.nextToken();
             String username = st.nextToken();
 
-
-            UserLogin userlogin = new UserLogin();
-            List<String> userList = userlogin.listOfUsers();
-
-
-            for (String users : userList) {
-            }
-
-
             if (cmd.equals("CONNECT")) {
 
+                int i = 0;
 
-                System.out.println("Creating a new handler for this client...");
-
-                // Create a new handler object for handling this request.
-                ClientHandler mtch = new ClientHandler(s, username, dis, dos);
-
-                // Create a new Thread with this object.
-                Thread t = new Thread(mtch);
-
-                System.out.println("Adding this client to active client list");
-
-                // add this client to active clients list
-                ar.add(mtch);
-
-                // start the thread.
-                t.start();
+                for (String users : userList) {
 
 
+                    if (username.equals(users)) {
+
+                        System.out.println("Creating a new handler for this client...");
+
+                        // Create a new handler object for handling this request.
+                        ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+
+                        // Create a new Thread with this object.
+                        Thread t = new Thread(mtch);
+
+                        System.out.println("Adding this client to active client list");
+
+                        // add this client to active clients list
+                        ar.add(mtch);
+
+                        // start the thread.
+                        t.start();
+
+                        break;
+
+                    }
+                    i++;
+
+                    if (i == userList.size()){
+
+                        dos.writeUTF("username doesn't exist");
+                        s.close();
+                        break;
+                    }
+
+
+
+                }
+
+
+            } else {
+                s.close();
             }
 
 
