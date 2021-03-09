@@ -2,6 +2,7 @@ package server;// Java implementation of Server side
 // It contains two classes : Server and ClientHandler
 // Save file as Server.java
 
+
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -9,17 +10,13 @@ import java.net.*;
 // creating user check
 
 // Server class
-public class Server
-{
+public class Server {
 
     // Vector to store active clients
     static Vector<ClientHandler> ar = new Vector<>();
 
-    // counter for clients
-    static int i = 0;
 
-    public static void main(String[] args) throws IOException
-    {
+    public static void main(String[] args) throws IOException {
         // server is listening on port 1234
         ServerSocket ss = new ServerSocket(1234);
 
@@ -27,8 +24,7 @@ public class Server
 
         // running infinite loop for getting
         // client request
-        while (true)
-        {
+        while (true) {
             // Accept the incoming request
             s = ss.accept();
 
@@ -44,13 +40,21 @@ public class Server
             String username = st.nextToken();
 
 
+            UserLogin userlogin = new UserLogin();
+            List<String> userList = userlogin.listOfUsers();
 
-            if(cmd.equals("CONNECT")){
+
+            for (String users : userList) {
+            }
+
+
+            if (cmd.equals("CONNECT")) {
+
 
                 System.out.println("Creating a new handler for this client...");
 
                 // Create a new handler object for handling this request.
-                ClientHandler mtch = new ClientHandler(s,username, dis, dos);
+                ClientHandler mtch = new ClientHandler(s, username, dis, dos);
 
                 // Create a new Thread with this object.
                 Thread t = new Thread(mtch);
@@ -63,19 +67,18 @@ public class Server
                 // start the thread.
                 t.start();
 
-                // increment i for new client.
-                // i is used for naming only, and can be replaced
-                // by any naming scheme
-                i++;
+
             }
+
 
         }
     }
+
+
 }
 
 // ClientHandler class
-class ClientHandler implements Runnable
-{
+class ClientHandler implements Runnable {
     private String name;
     final DataInputStream dis;
     final DataOutputStream dos;
@@ -88,24 +91,22 @@ class ClientHandler implements Runnable
         this.dos = dos;
         this.name = name;
         this.s = s;
-        this.isloggedin=true;
+        this.isloggedin = true;
     }
 
     @Override
     public void run() {
 
         String received;
-        while (true)
-        {
-            try
-            {
+        while (true) {
+            try {
                 // receive the string
                 received = dis.readUTF();
 
                 System.out.println(received);
 
-                if(received.equals("logout")){
-                    this.isloggedin=false;
+                if (received.equals("logout")) {
+                    this.isloggedin = false;
                     this.s.close();
                     break;
                 }
@@ -118,13 +119,11 @@ class ClientHandler implements Runnable
 
                 // search for the recipient in the connected devices list.
                 // ar is the vector storing client of active users
-                for (ClientHandler mc : Server.ar)
-                {
+                for (ClientHandler mc : Server.ar) {
                     // if the recipient is found, write on its
                     // output stream
-                    if (mc.name.equals(recipient) && mc.isloggedin==true)
-                    {
-                        mc.dos.writeUTF(this.name+" : "+MsgToSend);
+                    if (mc.name.equals(recipient) && mc.isloggedin == true) {
+                        mc.dos.writeUTF(this.name + " : " + MsgToSend);
                         break;
                     }
                 }
@@ -134,15 +133,17 @@ class ClientHandler implements Runnable
             }
 
         }
-        try
-        {
+        try {
             // closing resources
             this.dis.close();
             this.dos.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
+
+
+
 
