@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-// TODO få server til at sende besked på hvem der er online, nogen hopper fra.
 // Server class
 public class Server {
 
@@ -38,57 +37,62 @@ public class Server {
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
 
-            StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
-            String cmd = st.nextToken();
-            String username = st.nextToken();
+            try {
+                StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
+                String cmd = st.nextToken();
+                String username = st.nextToken();
 
-            if (cmd.equals("CONNECT")) {
+                if (cmd.equals("CONNECT")) {
 
-                int i = 0;
+                    int i = 0;
 
-                for (String users : userList) {
+                    for (String users : userList) {
 
 
-                    if (username.equals(users)) {
+                        if (username.equals(users)) {
 
-                        System.out.println("Creating a new handler for this client...");
+                            System.out.println("Creating a new handler for this client...");
 
-                        // Create a new handler object for handling this request.
-                        ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+                            // Create a new handler object for handling this request.
+                            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
 
-                        // Create a new Thread with this object.
-                        Thread t = new Thread(mtch);
+                            // Create a new Thread with this object.
+                            Thread t = new Thread(mtch);
 
-                        System.out.println("Adding this client to active client list");
+                            System.out.println("Adding this client to active client list");
 
-                        // add this client to active clients list
-                        ar.add(mtch);
+                            // add this client to active clients list
+                            ar.add(mtch);
 
-                        // start the thread.
-                        t.start();
+                            // start the thread.
+                            t.start();
 
-                        onlineMessage();
+                            onlineMessage();
 
-                        break;
+                            break;
+
+                        }
+                        i++;
+
+                        if (i == userList.size()) {
+
+                            dos.writeUTF("username doesn't exist");
+                            s.close();
+                            break;
+                        }
+
 
                     }
-                    i++;
-
-                    if (i == userList.size()) {
-
-                        dos.writeUTF("username doesn't exist");
-                        s.close();
-                        break;
-                    }
 
 
+                } else {
+                    s.close();
                 }
 
-
-            } else {
+            } catch (Exception e) {
                 s.close();
-            }
 
+            }
 
         }
     }
@@ -102,7 +106,7 @@ public class Server {
 
             checks++;
 
-            if(allMc.isloggedin == true && vectorSize == checks) {
+            if (allMc.isloggedin == true && vectorSize == checks) {
                 stringBuilder.append(allMc.getName());
                 break;
             }
@@ -112,7 +116,6 @@ public class Server {
 
 
             }
-
 
 
         } // tilføjer navne til vores online besked.
@@ -134,7 +137,6 @@ class ClientHandler implements Runnable {
     Socket s;
     boolean isloggedin;
 
-    //.
     // constructor
     public ClientHandler(Socket s, String name, DataInputStream dis, DataOutputStream dos) {
         this.dis = dis;
@@ -162,21 +164,29 @@ class ClientHandler implements Runnable {
                 if (received.equals("CLOSE#")) {
                     this.isloggedin = false;
                     dos.writeUTF("CLOSE");
-                  //  this.s.close();
+                    this.s.close();
                     Server.onlineMessage();
                     break;
                 }
 
 
-                // break the string into message and recipient part
+                // break the string and check for "SEND" Command
                 StringTokenizer st = new StringTokenizer(received, "#");
                 String send = st.nextToken();
-                String recipient = st.nextToken();
-                String MsgToSend = st.nextToken();
 
+                if (!send.equals("SEND")){
+
+                    this.isloggedin = false;
+                    dos.writeUTF("CLOSE");
+                    this.s.close();
+                    Server.onlineMessage();
+
+                }
 
                 if (send.equals("SEND")) {
-
+                // break the String into recipient & msg
+                String recipient = st.nextToken();
+                String MsgToSend = st.nextToken();
                     // search for the recipient in the connected devices list.
                     // ar is the vector storing client of active users
                     for (ClientHandler mc : Server.ar) {
@@ -219,7 +229,14 @@ class ClientHandler implements Runnable {
                 }
             } catch (IOException e) {
 
-                e.printStackTrace();
+                try {
+                    this.isloggedin = false;
+                    this.s.close();
+                    Server.onlineMessage();
+                    break;
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
 
         }
