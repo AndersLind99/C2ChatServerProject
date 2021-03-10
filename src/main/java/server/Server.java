@@ -7,6 +7,8 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 // TODO: Tilføj Close#0, Close#1, Close#2 beskeder fra server til bruger.
+
+// 2nd push test
 // Server class
 public class Server {
 
