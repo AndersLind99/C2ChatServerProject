@@ -161,7 +161,9 @@ class ClientHandler implements Runnable {
 
                 if (received.equals("CLOSE#")) {
                     this.isloggedin = false;
-                    this.s.close();
+                    dos.writeUTF("CLOSE");
+                  //  this.s.close();
+                    Server.onlineMessage();
                     break;
                 }
 

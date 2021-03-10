@@ -48,11 +48,21 @@ public class Client
             @Override
             public void run() {
 
+
                 while (true) {
                     try {
                         // read the message sent to this client
                         String msg = dis.readUTF();
                         System.out.println(msg);
+
+                        if(msg.equals("CLOSE")){
+
+                            s.close();
+                            System.exit(0);
+                            break;
+
+                        }
+
                     } catch (IOException e) {
 
                         e.printStackTrace();
