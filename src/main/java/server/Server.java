@@ -6,7 +6,7 @@ package server;// Java implementation of Server side
 import java.io.*;
 import java.util.*;
 import java.net.*;
-
+// TODO: Tilføj Close#0, Close#1, Close#2 beskeder fra server til bruger.
 // Server class
 public class Server {
 
@@ -35,6 +35,8 @@ public class Server {
             // obtain input and output streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+            dis.readUTF().toString();
 
 
             try {
@@ -199,7 +201,7 @@ class ClientHandler implements Runnable {
                                 for (ClientHandler allMc : Server.ar) {
 
                                     if (allMc.name.equals(recipient) && allMc.isloggedin == true) {
-                                        allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+                                        allMc.dos.writeUTF("MESSAGE#" + "*" + "#" + MsgToSend);
 
                                         break;
                                     }
