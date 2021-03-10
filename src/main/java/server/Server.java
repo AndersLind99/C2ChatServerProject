@@ -114,7 +114,6 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
 
-// TODO Add syntax to messages. #SEND#(User)#(Message)
         String received;
         while (true) {
             try {
@@ -152,6 +151,7 @@ class ClientHandler implements Runnable {
 
                                     if (allMc.name.equals(recipient) && allMc.isloggedin == true) {
                                         allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+
                                         break;
                                     } break;
                                 }
