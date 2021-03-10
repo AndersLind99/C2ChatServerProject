@@ -67,33 +67,7 @@ public class Server {
                         // start the thread.
                         t.start();
 
-                        int vectorSize = Server.ar.size(); // sætter vores vector størerelse fast til en variabel
-                        int checks = 0;
-                        StringBuilder stringBuilder = new StringBuilder(); // laver string builder.
-                        for (ClientHandler allMc : Server.ar) { //gennemgår vores clientliste
-
-                            checks++;
-
-                            if(allMc.isloggedin == true && vectorSize == checks) {
-                                stringBuilder.append(allMc.getName());
-                                break;
-                            }
-
-                            if (allMc.isloggedin == true && vectorSize > checks) {
-                                stringBuilder.append(allMc.getName() + ",");
-
-
-                            }
-
-
-
-                        } // tilføjer navne til vores online besked.
-                        for (ClientHandler allMc : Server.ar) {
-                            if (allMc.isloggedin == true && vectorSize == checks) {
-                                allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
-                            }
-                        } // sender online beskeden ud
-
+                        onlineMessage();
 
                         break;
 
@@ -117,6 +91,37 @@ public class Server {
 
 
         }
+    }
+
+    public static void onlineMessage() throws IOException {
+
+        int vectorSize = Server.ar.size(); // sætter vores vector størerelse fast til en variabel
+        int checks = 0;
+        StringBuilder stringBuilder = new StringBuilder(); // laver string builder.
+        for (ClientHandler allMc : Server.ar) { //gennemgår vores clientliste
+
+            checks++;
+
+            if(allMc.isloggedin == true && vectorSize == checks) {
+                stringBuilder.append(allMc.getName());
+                break;
+            }
+
+            if (allMc.isloggedin == true && vectorSize > checks) {
+                stringBuilder.append(allMc.getName() + ",");
+
+
+            }
+
+
+
+        } // tilføjer navne til vores online besked.
+        for (ClientHandler allMc : Server.ar) {
+            if (allMc.isloggedin == true && vectorSize == checks) {
+                allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
+            }
+        } // sender online beskeden ud
+
     }
 
 }
