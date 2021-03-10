@@ -151,7 +151,7 @@ class ClientHandler implements Runnable {
                                 for (ClientHandler allMc : Server.ar) {
 
                                     if (allMc.name.equals(recipient) && allMc.isloggedin == true) {
-                                        allMc.dos.writeUTF(this.name + " : " + MsgToSend);
+                                        allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
                                         break;
                                     } break;
                                 }
@@ -163,14 +163,14 @@ class ClientHandler implements Runnable {
 
 
                         if (mc.name.equals(recipient) && mc.isloggedin == true) {
-                            mc.dos.writeUTF(this.name + " : " + MsgToSend);
+                            mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
                             break;
                         }
 
                         if (recipient.equals("*") && mc.isloggedin == true) {
 
                             for (ClientHandler allMc : Server.ar) {
-                                allMc.dos.writeUTF(this.name + " : " + MsgToSend);
+                                allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
                             }
                             break;
 
