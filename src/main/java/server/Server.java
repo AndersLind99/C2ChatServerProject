@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-
+// TODO få server til at sende besked på hvem der er online, hvergang nogen hopper på eller fra.
 // Server class
 public class Server {
 
