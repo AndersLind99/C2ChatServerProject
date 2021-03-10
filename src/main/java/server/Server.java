@@ -122,7 +122,7 @@ class ClientHandler implements Runnable {
 
                 System.out.println(received);
 
-                if (received.equals("logout")) {
+                if (received.equals("CLOSE#")) {
                     this.isloggedin = false;
                     this.s.close();
                     break;
