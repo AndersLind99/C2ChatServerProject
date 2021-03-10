@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-// TODO få server til at sende besked på hvem der er online, hvergang nogen hopper på eller fra.
+// TODO få server til at sende besked på hvem der er online, nogen hopper fra.
 // Server class
 public class Server {
 
@@ -67,6 +67,34 @@ public class Server {
                         // start the thread.
                         t.start();
 
+                        int vectorSize = Server.ar.size(); // sætter vores vector størerelse fast til en variabel
+                        int checks = 0;
+                        StringBuilder stringBuilder = new StringBuilder(); // laver string builder.
+                        for (ClientHandler allMc : Server.ar) { //gennemgår vores clientliste
+
+                            checks++;
+
+                            if(allMc.isloggedin == true && vectorSize == checks) {
+                                stringBuilder.append(allMc.getName());
+                                break;
+                            }
+
+                            if (allMc.isloggedin == true && vectorSize > checks) {
+                                stringBuilder.append(allMc.getName() + ",");
+
+
+                            }
+
+
+
+                        } // tilføjer navne til vores online besked.
+                        for (ClientHandler allMc : Server.ar) {
+                            if (allMc.isloggedin == true && vectorSize == checks) {
+                                allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
+                            }
+                        } // sender online beskeden ud
+
+
                         break;
 
                     }
@@ -91,7 +119,6 @@ public class Server {
         }
     }
 
-
 }
 
 // ClientHandler class
@@ -101,6 +128,7 @@ class ClientHandler implements Runnable {
     final DataOutputStream dos;
     Socket s;
     boolean isloggedin;
+
     //.
     // constructor
     public ClientHandler(Socket s, String name, DataInputStream dis, DataOutputStream dos) {
@@ -109,6 +137,10 @@ class ClientHandler implements Runnable {
         this.name = name;
         this.s = s;
         this.isloggedin = true;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -142,8 +174,8 @@ class ClientHandler implements Runnable {
                     // ar is the vector storing client of active users
                     for (ClientHandler mc : Server.ar) {
 
-                        if (recipient.contains(",")){
-                            st = new StringTokenizer(recipient,",");
+                        if (recipient.contains(",")) {
+                            st = new StringTokenizer(recipient, ",");
                             for (int i = 0; st.hasMoreTokens(); i++) {
                                 recipient = st.nextToken();
 
@@ -153,7 +185,8 @@ class ClientHandler implements Runnable {
                                         allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
 
                                         break;
-                                    } break;
+                                    }
+                                    break;
                                 }
 
                             }

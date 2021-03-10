@@ -10,7 +10,7 @@ import java.util.List;
 
         List<String> usersList = new ArrayList<String>();
 
-        usersList.add("anders");
+        usersList.add("Anders");
         usersList.add("Lukas");
         usersList.add("Nicklas");
         usersList.add("Simon");
