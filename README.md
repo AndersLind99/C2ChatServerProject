@@ -1,7 +1,7 @@
-## Quick Start Project for the Chat - Server
+## Gruppe C2: Chat Server Projekt.
 
-Simple Maven Project which can be used for the Chat-CA 
+Here is the link to the log + github.
 
-Using this project as your start code will make deploying your server (the jar-file) to Digital Ocean a "no brainer" if you follow the instructions given here
+https://docs.google.com/document/d/1TODmOy46HuyTt-tmaSEznDqeXEf7k-Gl36dQ-m94hn8/edit
 
-https://docs.google.com/document/d/1aE1MlsTAAYksCPpI4YZu-I_uLYqZssoobsmA-GHmiHk/edit?usp=sharing 
+https://github.com/AndersLind99/C2ChatServerProject
