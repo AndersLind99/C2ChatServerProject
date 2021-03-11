@@ -1,6 +1,4 @@
-package server;// Java implementation of Server side
-// It contains two classes : Server and ClientHandler
-// Save file as Server.java
+package server;
 
 
 import java.io.*;
