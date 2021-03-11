@@ -234,36 +234,27 @@ class ClientHandler implements Runnable {
                     for (ClientHandler mc : Server.ar) {
 
                         if (recipient.equals("*") && mc.isloggedin == true) {
-                                mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+                            mc.dos.writeUTF("MESSAGE#" + "*" + "#" + MsgToSend);
 
                         }
 
                         if (recipient.contains(",")) {
                             st = new StringTokenizer(recipient, ",");
                             for (int i = 0; st.hasMoreTokens(); i++) {
-                                recipient = st.nextToken();
+                                String recipients = st.nextToken();
 
-                                for (ClientHandler allMc : Server.ar) {
+                                if (mc.name.equals(recipients) && mc.isloggedin == true) {
+                                    mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
 
-                                    if (allMc.name.equals(recipient) && allMc.isloggedin == true) {
-                                        allMc.dos.writeUTF("MESSAGE#" + "*" + "#" + MsgToSend);
-
-                                        break;
-                                    }
-                                    break;
                                 }
-
                             }
 
-
                         }
-
 
                         if (mc.name.equals(recipient) && mc.isloggedin == true) {
                             mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
                             break;
                         }
-
 
                     }
                 }
