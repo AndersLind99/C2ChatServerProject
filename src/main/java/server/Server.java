@@ -37,17 +37,15 @@ public class Server {
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-            try {
 
             StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
             String cmd = st.nextToken();
-            String username = st.nextToken();
-
 
 
             if (cmd.equals("CONNECT")) {
-
+                String username = st.nextToken();
                 int i = 0;
+
 
                 for (String users : userList) {
 
@@ -91,23 +89,13 @@ public class Server {
 
             }
 
-                if (!cmd.equals("CONNECT")) {
-                    ClientHandler mtch = new ClientHandler(s, username, dis, dos);
-                    Thread t = new Thread(mtch);
-                    t.start();
-                    s.close();
-                    dis.close();
-                    dos.close();
-
-                }
-
-
-        } catch(Exception e) {
-                dos.writeUTF("CLOSE#1");
+            if (!cmd.equals("CONNECT")) {
                 s.close();
-                break;
+
             }
-            }
+
+
+        }
     }
 
     public static void onlineMessage() throws IOException {
