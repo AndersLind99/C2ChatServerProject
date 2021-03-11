@@ -20,7 +20,7 @@ public class Client
 
         // obtaining input and out streams
         DataInputStream dis = new DataInputStream(s.getInputStream());
-        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+        PrintWriter dos = new PrintWriter(s.getOutputStream(),true);
 
         // sendMessage thread
         Thread sendMessage = new Thread(new Runnable()
@@ -32,12 +32,8 @@ public class Client
                     // read the message to deliver.
                     String msg = scn.nextLine();
 
-                    try {
-                        // write on the output stream
-                        dos.writeUTF(msg);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    // write on the output stream
+                    dos.println(msg);
                 }
             }
         });
@@ -52,7 +48,7 @@ public class Client
                 while (true) {
                     try {
                         // read the message sent to this client
-                        String msg = dis.readUTF();
+                        String msg = dis.readLine();
                         System.out.println(msg);
 
                         if(msg.equals("CLOSE#0") || msg.equals("CLOSE#1") || msg.equals("CLOSE#2")){
