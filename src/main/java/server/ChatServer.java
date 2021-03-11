@@ -33,7 +33,7 @@ public class ChatServer {
 
             // obtain input and output streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            PrintWriter dos = new PrintWriter(s.getOutputStream(),true);
             StringTokenizer st = new StringTokenizer(dis.readLine(), "#");
             String cmd = st.nextToken();
 
@@ -74,7 +74,7 @@ public class ChatServer {
                         i++;
 
                         if (i == userList.size()) {
-                            dos.writeUTF("CLOSE#2");
+                            dos.println("CLOSE#2");
                             s.close();
                             break;
                         }
@@ -87,7 +87,7 @@ public class ChatServer {
 
 
                 if (!cmd.equals("CONNECT")) {
-                    dos.writeUTF("CLOSE#1");
+                    dos.println("CLOSE#1");
                     s.close();
 
                 }
@@ -125,7 +125,7 @@ public class ChatServer {
         // sender ONLINE besked ud til alle
         for (ClientHandler allMc : ChatServer.ar) {
             if (allMc.isloggedin == true && vectorSize == checks) {
-                allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
+                allMc.dos.println("ONLINE#" + stringBuilder.toString());
             }
         }
 
@@ -138,17 +138,18 @@ public class ChatServer {
 class ClientHandler implements Runnable {
     private String name;
     final DataInputStream dis;
-    final DataOutputStream dos;
+    final PrintWriter dos;
     Socket s;
     boolean isloggedin;
 
     // constructor
-    public ClientHandler(Socket s, String name, DataInputStream dis, DataOutputStream dos) {
+    public ClientHandler(Socket s, String name, DataInputStream dis, PrintWriter dos) {
         this.dis = dis;
         this.dos = dos;
         this.name = name;
         this.s = s;
         this.isloggedin = true;
+
     }
 
     public String getName() {
@@ -161,7 +162,7 @@ class ClientHandler implements Runnable {
 
             // normal close
             case 0: {
-                dos.writeUTF("CLOSE#0");
+                dos.println("CLOSE#0");
                 this.isloggedin = false;
                 this.s.close();
                 this.dis.close();
@@ -171,7 +172,7 @@ class ClientHandler implements Runnable {
             }
             // Illegal input was received
             case 1: {
-                dos.writeUTF("CLOSE#1");
+                dos.println("CLOSE#1");
                 this.isloggedin = false;
                 this.s.close();
                 this.dis.close();
@@ -181,7 +182,7 @@ class ClientHandler implements Runnable {
             }
             // User not found
             case 2: {
-                dos.writeUTF("CLOSE#2");
+                dos.println("CLOSE#2");
                 this.isloggedin = false;
                 this.s.close();
                 this.dis.close();
@@ -241,7 +242,7 @@ class ClientHandler implements Runnable {
                     for (ClientHandler mc : ChatServer.ar) {
 
                         if (recipient.equals("*") && mc.isloggedin == true) {
-                            mc.dos.writeUTF("MESSAGE#" + "*" + "#" + MsgToSend);
+                            mc.dos.println("MESSAGE#" + "*" + "#" + MsgToSend);
 
                         }
 
@@ -251,7 +252,7 @@ class ClientHandler implements Runnable {
                                 String recipients = st.nextToken();
 
                                 if (mc.name.equals(recipients) && mc.isloggedin == true) {
-                                    mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+                                    mc.dos.println("MESSAGE#" + this.name + "#" + MsgToSend);
 
                                 }
                             }
@@ -259,7 +260,7 @@ class ClientHandler implements Runnable {
                         }
 
                         if (mc.name.equals(recipient) && mc.isloggedin == true) {
-                            mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+                            mc.dos.println("MESSAGE#" + this.name + "#" + MsgToSend);
                             break;
                         }
 
