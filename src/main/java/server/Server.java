@@ -6,7 +6,7 @@ package server;// Java implementation of Server side
 import java.io.*;
 import java.util.*;
 import java.net.*;
-// TODO: Tilføj Close#0, Close#1, Close#2 beskeder fra server til bruger.
+
 
 // Server class
 public class Server {
@@ -21,7 +21,7 @@ public class Server {
         List<String> userList = userlogin.listOfUsers();
 
         // server is listening on port 1234
-        ServerSocket ss = new ServerSocket(1234);
+        ServerSocket ss = new ServerSocket(8000);
 
         Socket s;
 
