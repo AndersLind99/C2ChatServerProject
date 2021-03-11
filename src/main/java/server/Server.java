@@ -8,7 +8,6 @@ import java.util.*;
 import java.net.*;
 // TODO: Tilføj Close#0, Close#1, Close#2 beskeder fra server til bruger.
 
-// 2nd push test
 // Server class
 public class Server {
 
@@ -38,65 +37,57 @@ public class Server {
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-            dis.readUTF().toString();
+
+            StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
+            String cmd = st.nextToken();
+            String username = st.nextToken();
+            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
 
 
-            try {
-                StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
-                String cmd = st.nextToken();
-                String username = st.nextToken();
+            if (cmd.equals("CONNECT")) {
 
-                if (cmd.equals("CONNECT")) {
+                int i = 0;
 
-                    int i = 0;
-
-                    for (String users : userList) {
+                for (String users : userList) {
 
 
-                        if (username.equals(users)) {
+                    if (username.equals(users)) {
 
-                            System.out.println("Creating a new handler for this client...");
+                        System.out.println("Creating a new handler for this client...");
 
-                            // Create a new handler object for handling this request.
-                            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+                        // Create a new handler object for handling this request.
+                        mtch = new ClientHandler(s, username, dis, dos);
 
-                            // Create a new Thread with this object.
-                            Thread t = new Thread(mtch);
+                        // Create a new Thread with this object.
+                        Thread t = new Thread(mtch);
 
-                            System.out.println("Adding this client to active client list");
+                        System.out.println("Adding this client to active client list");
 
-                            // add this client to active clients list
-                            ar.add(mtch);
+                        // add this client to active clients list
+                        ar.add(mtch);
 
-                            // start the thread.
-                            t.start();
+                        // start the thread.
+                        t.start();
 
-                            onlineMessage();
+                        onlineMessage();
 
-                            break;
+                        break;
 
-                        }
-                        i++;
+                    }
+                    i++;
 
-                        if (i == userList.size()) {
-
-                            dos.writeUTF("username doesn't exist");
-                            s.close();
-                            break;
-                        }
-
-
+                    if (i == userList.size()) {
+                        mtch.close(2);
                     }
 
 
-                } else {
-                    s.close();
                 }
 
-            } catch (Exception e) {
-                s.close();
 
+            } else {
+                mtch.close(1);
             }
+
 
         }
     }
@@ -110,26 +101,30 @@ public class Server {
 
             checks++;
 
+            // tilføjer navne til vores online besked.
+
             if (allMc.isloggedin == true && vectorSize == checks) {
                 stringBuilder.append(allMc.getName());
                 break;
             }
 
+            //tilføjer det sidste navn I listen.
+
             if (allMc.isloggedin == true && vectorSize > checks) {
                 stringBuilder.append(allMc.getName() + ",");
-
-
             }
 
+        }
 
-        } // tilføjer navne til vores online besked.
+        // sender ONLINE besked ud til alle
         for (ClientHandler allMc : Server.ar) {
             if (allMc.isloggedin == true && vectorSize == checks) {
                 allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
             }
-        } // sender online beskeden ud
+        }
 
     }
+
 
 }
 
@@ -154,6 +149,47 @@ class ClientHandler implements Runnable {
         return name;
     }
 
+    public void close(int i) throws IOException {
+
+        switch (i) {
+
+            // normal close
+            case 0: {
+                dos.writeUTF("CLOSE#0");
+                this.isloggedin = false;
+                this.s.close();
+                this.dis.close();
+                this.dos.close();
+                Server.onlineMessage();
+                break;
+            }
+            // Illegal input was received
+            case 1: {
+                dos.writeUTF("CLOSE#1");
+                this.isloggedin = false;
+                this.s.close();
+                this.dis.close();
+                this.dos.close();
+                Server.onlineMessage();
+                break;
+            }
+            // User not found
+            case 2: {
+                dos.writeUTF("CLOSE#2");
+                this.isloggedin = false;
+                this.s.close();
+                this.dis.close();
+                this.dos.close();
+                Server.onlineMessage();
+                break;
+            }
+
+
+        }
+
+
+    }
+
     @Override
     public void run() {
 
@@ -166,11 +202,7 @@ class ClientHandler implements Runnable {
                 System.out.println(received);
 
                 if (received.equals("CLOSE#")) {
-                    this.isloggedin = false;
-                    dos.writeUTF("CLOSE");
-                    this.s.close();
-                    Server.onlineMessage();
-                    break;
+                    close(0);
                 }
 
 
@@ -178,19 +210,16 @@ class ClientHandler implements Runnable {
                 StringTokenizer st = new StringTokenizer(received, "#");
                 String send = st.nextToken();
 
-                if (!send.equals("SEND")){
+                if (!send.equals("SEND")) {
 
-                    this.isloggedin = false;
-                    dos.writeUTF("CLOSE");
-                    this.s.close();
-                    Server.onlineMessage();
+                    close(2);
 
                 }
 
                 if (send.equals("SEND")) {
-                // break the String into recipient & msg
-                String recipient = st.nextToken();
-                String MsgToSend = st.nextToken();
+                    // break the String into recipient & msg
+                    String recipient = st.nextToken();
+                    String MsgToSend = st.nextToken();
                     // search for the recipient in the connected devices list.
                     // ar is the vector storing client of active users
                     for (ClientHandler mc : Server.ar) {
@@ -231,27 +260,16 @@ class ClientHandler implements Runnable {
                         }
                     }
                 }
+                if (!send.equals("SEND")) {
+
+
+                }
             } catch (IOException e) {
 
-                try {
-                    this.isloggedin = false;
-                    this.s.close();
-                    Server.onlineMessage();
-                    break;
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
             }
 
         }
-        try {
-            // closing resources
-            this.dis.close();
-            this.dos.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
 
