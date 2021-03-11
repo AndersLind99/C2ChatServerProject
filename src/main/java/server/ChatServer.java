@@ -7,7 +7,7 @@ import java.net.*;
 
 
 // Server class
-public class Server {
+public class ChatServer {
 
     // Vector to store active clients
     static Vector<ClientHandler> ar = new Vector<>();
@@ -20,7 +20,7 @@ public class Server {
 
         // server is listening on port 8000
         ServerSocket ss = new ServerSocket(8000);
-
+        System.out.println("Server started");
         Socket s;
 
         // running infinite loop for getting
@@ -34,11 +34,10 @@ public class Server {
             // obtain input and output streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            StringTokenizer st = new StringTokenizer(dis.readLine(), "#");
+            String cmd = st.nextToken();
 
             try {
-
-                StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
-                String cmd = st.nextToken();
 
 
                 if (cmd.equals("CONNECT")) {
@@ -101,10 +100,10 @@ public class Server {
 
     public static void onlineMessage() throws IOException {
 
-        int vectorSize = Server.ar.size(); // sætter vores vector størerelse fast til en variabel
+        int vectorSize = ChatServer.ar.size(); // sætter vores vector størerelse fast til en variabel
         int checks = 0;
         StringBuilder stringBuilder = new StringBuilder(); // laver string builder.
-        for (ClientHandler allMc : Server.ar) { //gennemgår vores clientliste
+        for (ClientHandler allMc : ChatServer.ar) { //gennemgår vores clientliste
 
             checks++;
 
@@ -124,7 +123,7 @@ public class Server {
         }
 
         // sender ONLINE besked ud til alle
-        for (ClientHandler allMc : Server.ar) {
+        for (ClientHandler allMc : ChatServer.ar) {
             if (allMc.isloggedin == true && vectorSize == checks) {
                 allMc.dos.writeUTF("ONLINE#" + stringBuilder.toString());
             }
@@ -167,7 +166,7 @@ class ClientHandler implements Runnable {
                 this.s.close();
                 this.dis.close();
                 this.dos.close();
-                Server.onlineMessage();
+                ChatServer.onlineMessage();
                 break;
             }
             // Illegal input was received
@@ -177,7 +176,7 @@ class ClientHandler implements Runnable {
                 this.s.close();
                 this.dis.close();
                 this.dos.close();
-                Server.onlineMessage();
+                ChatServer.onlineMessage();
                 break;
             }
             // User not found
@@ -187,7 +186,7 @@ class ClientHandler implements Runnable {
                 this.s.close();
                 this.dis.close();
                 this.dos.close();
-                Server.onlineMessage();
+                ChatServer.onlineMessage();
                 break;
             }
             // User closed client unexpectedly
@@ -196,7 +195,7 @@ class ClientHandler implements Runnable {
                 this.s.close();
                 this.dis.close();
                 this.dos.close();
-                Server.onlineMessage();
+                ChatServer.onlineMessage();
                 break;
             }
 
@@ -214,7 +213,7 @@ class ClientHandler implements Runnable {
         while (true) {
             try {
                 // receive the string
-                received = dis.readUTF();
+                received = dis.readLine();
 
                 System.out.println(received);
 
@@ -239,7 +238,7 @@ class ClientHandler implements Runnable {
                     String MsgToSend = st.nextToken();
                     // search for the recipient in the connected devices list.
                     // ar is the vector storing client of active users
-                    for (ClientHandler mc : Server.ar) {
+                    for (ClientHandler mc : ChatServer.ar) {
 
                         if (recipient.equals("*") && mc.isloggedin == true) {
                             mc.dos.writeUTF("MESSAGE#" + "*" + "#" + MsgToSend);
