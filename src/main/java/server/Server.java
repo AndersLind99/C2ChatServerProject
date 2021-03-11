@@ -37,11 +37,12 @@ public class Server {
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
+            try {
 
             StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
             String cmd = st.nextToken();
             String username = st.nextToken();
-            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+
 
 
             if (cmd.equals("CONNECT")) {
@@ -56,7 +57,7 @@ public class Server {
                         System.out.println("Creating a new handler for this client...");
 
                         // Create a new handler object for handling this request.
-                        mtch = new ClientHandler(s, username, dis, dos);
+                        ClientHandler mtch = new ClientHandler(s, username, dis, dos);
 
                         // Create a new Thread with this object.
                         Thread t = new Thread(mtch);
@@ -77,19 +78,36 @@ public class Server {
                     i++;
 
                     if (i == userList.size()) {
-                        mtch.close(2);
+                        dos.writeUTF("CLOSE#2");
+                        dis.close();
+                        dos.close();
+                        s.close();
+                        break;
                     }
 
 
                 }
 
 
-            } else {
-                mtch.close(1);
             }
 
+                if (!cmd.equals("CONNECT")) {
+                    ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+                    Thread t = new Thread(mtch);
+                    t.start();
+                    s.close();
+                    dis.close();
+                    dos.close();
 
-        }
+                }
+
+
+        } catch(Exception e) {
+                dos.writeUTF("CLOSE#1");
+                s.close();
+                break;
+            }
+            }
     }
 
     public static void onlineMessage() throws IOException {
@@ -212,7 +230,7 @@ class ClientHandler implements Runnable {
 
                 if (!send.equals("SEND")) {
 
-                    close(2);
+                    close(1);
 
                 }
 
