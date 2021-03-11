@@ -55,7 +55,7 @@ public class Client
                         String msg = dis.readUTF();
                         System.out.println(msg);
 
-                        if(msg.equals("CLOSE")){
+                        if(msg.equals("CLOSE#0") || msg.equals("CLOSE#1") || msg.equals("CLOSE#2")){
 
                             s.close();
                             System.exit(0);

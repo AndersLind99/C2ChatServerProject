@@ -37,64 +37,67 @@ public class Server {
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
+            try {
 
-            StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
-            String cmd = st.nextToken();
-
-
-            if (cmd.equals("CONNECT")) {
-                String username = st.nextToken();
-                int i = 0;
+                StringTokenizer st = new StringTokenizer(dis.readUTF(), "#");
+                String cmd = st.nextToken();
 
 
-                for (String users : userList) {
+                if (cmd.equals("CONNECT")) {
+                    String username = st.nextToken();
+                    int i = 0;
 
 
-                    if (username.equals(users)) {
+                    for (String users : userList) {
 
-                        System.out.println("Creating a new handler for this client...");
 
-                        // Create a new handler object for handling this request.
-                        ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+                        if (username.equals(users)) {
 
-                        // Create a new Thread with this object.
-                        Thread t = new Thread(mtch);
+                            System.out.println("Creating a new handler for this client...");
 
-                        System.out.println("Adding this client to active client list");
+                            // Create a new handler object for handling this request.
+                            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
 
-                        // add this client to active clients list
-                        ar.add(mtch);
+                            // Create a new Thread with this object.
+                            Thread t = new Thread(mtch);
 
-                        // start the thread.
-                        t.start();
+                            System.out.println("Adding this client to active client list");
 
-                        onlineMessage();
+                            // add this client to active clients list
+                            ar.add(mtch);
 
-                        break;
+                            // start the thread.
+                            t.start();
 
-                    }
-                    i++;
+                            onlineMessage();
 
-                    if (i == userList.size()) {
-                        dos.writeUTF("CLOSE#2");
-                        dis.close();
-                        dos.close();
-                        s.close();
-                        break;
+                            break;
+
+                        }
+                        i++;
+
+                        if (i == userList.size()) {
+                            dos.writeUTF("CLOSE#2");
+                            s.close();
+                            break;
+                        }
+
+
                     }
 
 
                 }
 
 
-            }
+                if (!cmd.equals("CONNECT")) {
+                    dos.writeUTF("CLOSE#1");
+                    s.close();
 
-            if (!cmd.equals("CONNECT")) {
+                }
+
+            } catch (Exception e) {
                 s.close();
-
             }
-
-
         }
     }
 
@@ -230,6 +233,11 @@ class ClientHandler implements Runnable {
                     // ar is the vector storing client of active users
                     for (ClientHandler mc : Server.ar) {
 
+                        if (recipient.equals("*") && mc.isloggedin == true) {
+                                mc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
+
+                        }
+
                         if (recipient.contains(",")) {
                             st = new StringTokenizer(recipient, ",");
                             for (int i = 0; st.hasMoreTokens(); i++) {
@@ -256,20 +264,10 @@ class ClientHandler implements Runnable {
                             break;
                         }
 
-                        if (recipient.equals("*") && mc.isloggedin == true) {
 
-                            for (ClientHandler allMc : Server.ar) {
-                                allMc.dos.writeUTF("MESSAGE#" + this.name + "#" + MsgToSend);
-                            }
-                            break;
-
-                        }
                     }
                 }
-                if (!send.equals("SEND")) {
 
-
-                }
             } catch (IOException e) {
 
             }
