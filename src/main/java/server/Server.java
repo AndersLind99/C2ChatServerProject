@@ -192,6 +192,15 @@ class ClientHandler implements Runnable {
                 Server.onlineMessage();
                 break;
             }
+            // User closed client unexpectedly
+            case 3: {
+                this.isloggedin = false;
+                this.s.close();
+                this.dis.close();
+                this.dos.close();
+                Server.onlineMessage();
+                break;
+            }
 
 
         }
@@ -203,6 +212,7 @@ class ClientHandler implements Runnable {
     public void run() {
 
         String received;
+
         while (true) {
             try {
                 // receive the string
@@ -260,6 +270,12 @@ class ClientHandler implements Runnable {
                 }
 
             } catch (IOException e) {
+                try {
+                    close(3);
+                    break;
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
 
             }
 
