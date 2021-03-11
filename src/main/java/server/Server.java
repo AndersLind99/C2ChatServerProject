@@ -20,7 +20,7 @@ public class Server {
         UserLogin userlogin = new UserLogin();
         List<String> userList = userlogin.listOfUsers();
 
-        // server is listening on port 1234
+        // server is listening on port 8000
         ServerSocket ss = new ServerSocket(8000);
 
         Socket s;
