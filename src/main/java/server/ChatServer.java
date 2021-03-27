@@ -20,12 +20,9 @@ public class ChatServer {
 
     public static void main(String[] args) throws IOException {
         UserService userService = new UserService();
-        // server is listening on port 8000
         ServerSocket ss = new ServerSocket(8000);
         System.out.println("Server started");
 
-        // running infinite loop for getting
-        // client request
         while (true) {
             Socket s = ss.accept();
             System.out.println("New client request received : " + s);
