@@ -8,7 +8,6 @@ import java.net.*;
 
 // Server class
 public class ChatServer {
-
     // Vector to store active clients
     static Vector<ClientHandler> ar = new Vector<>();
 
@@ -17,6 +16,31 @@ public class ChatServer {
         t.start();
     }
 
+    /**
+     * sendMessage attempts to send a message to the given destination.
+     */
+    public static void sendMessage(ClientHandler source, String destination, String message) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("MESSAGE#");
+        if (destination == "*") {
+            builder.append("*");
+        } else {
+            builder.append(source.getName());
+        }
+
+        builder.append("#");
+        builder.append(message);
+
+
+        String msg = builder.toString();
+        for (ClientHandler mc : ChatServer.ar) {
+            if (!mc.nameMatches(pattern)) {
+                continue;
+            }
+
+            mc.sendMessage(msg);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         UserService userService = new UserService();
@@ -121,6 +145,38 @@ class ClientHandler implements Runnable {
         return name;
     }
 
+    // nameMatches indicates whether or not the given pattern matches the ClientHandlers name.
+    public boolean nameMatches(String pattern) {
+        if (pattern.contains("*")) {
+            return true;
+        }
+
+        if (pattern.equals(this.name)) {
+            return true;
+        }
+
+        if (pattern.contains(",")) {
+            st = new StringTokenizer(pattern, ",");
+            for (int i = 0; st.hasMoreTokens(); i++) {
+                if (this.name.equals(st.nextToken())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // sendMessage attempts to send a message to this ClientHandler.
+    // This will silently fail if the user is not logged in.
+    public void sendMessage(String message) {
+        if (this.isloggedin == false) {
+            return;
+        }
+
+        this.dos.write(message);
+    }
+
     public void close(int i) throws IOException {
         switch (i) {
             case 0:
@@ -149,9 +205,7 @@ class ClientHandler implements Runnable {
             try {
                 // receive the string
                 received = dis.readLine();
-
                 System.out.println(received);
-
                 if (received.equals("CLOSE#")) {
                     close(0);
                 }
@@ -160,47 +214,17 @@ class ClientHandler implements Runnable {
                 // break the string and check for "SEND" Command
                 StringTokenizer st = new StringTokenizer(received, "#");
                 String send = st.nextToken();
-
                 if (!send.equals("SEND")) {
-
                     close(1);
-
                 }
 
                 if (send.equals("SEND")) {
                     // break the String into recipient & msg
                     String recipient = st.nextToken();
-                    String MsgToSend = st.nextToken();
-                    // search for the recipient in the connected devices list.
-                    // ar is the vector storing client of active users
-                    for (ClientHandler mc : ChatServer.ar) {
+                    String messageToSend = st.nextToken();
 
-                        if (recipient.equals("*") && mc.isloggedin == true) {
-                            mc.dos.println("MESSAGE#" + "*" + "#" + MsgToSend);
-
-                        }
-
-                        if (recipient.contains(",")) {
-                            st = new StringTokenizer(recipient, ",");
-                            for (int i = 0; st.hasMoreTokens(); i++) {
-                                String recipients = st.nextToken();
-
-                                if (mc.name.equals(recipients) && mc.isloggedin == true) {
-                                    mc.dos.println("MESSAGE#" + this.name + "#" + MsgToSend);
-
-                                }
-                            }
-
-                        }
-
-                        if (mc.name.equals(recipient) && mc.isloggedin == true) {
-                            mc.dos.println("MESSAGE#" + this.name + "#" + MsgToSend);
-                            break;
-                        }
-
-                    }
+                    ChatServer.sendMessage(this, recipient, messageToSend);
                 }
-
             } catch (IOException e) {
                 try {
                     close(3);
