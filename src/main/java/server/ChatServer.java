@@ -14,10 +14,7 @@ public class ChatServer {
 
 
     public static void main(String[] args) throws IOException {
-        // list of approved users
-        UserLogin userlogin = new UserLogin();
-        List<String> userList = userlogin.listOfUsers();
-
+        UserService userService = new UserService();
         // server is listening on port 8000
         ServerSocket ss = new ServerSocket(8000);
         System.out.println("Server started");
@@ -38,60 +35,30 @@ public class ChatServer {
             String cmd = st.nextToken();
 
             try {
-
-
                 if (cmd.equals("CONNECT")) {
                     String username = st.nextToken();
-                    int i = 0;
-
-
-                    for (String users : userList) {
-
-
-                        if (username.equals(users)) {
-
-                            System.out.println("Creating a new handler for this client...");
-
-                            // Create a new handler object for handling this request.
-                            ClientHandler mtch = new ClientHandler(s, username, dis, dos);
-
-                            // Create a new Thread with this object.
-                            Thread t = new Thread(mtch);
-
-                            System.out.println("Adding this client to active client list");
-
-                            // add this client to active clients list
-                            ar.add(mtch);
-
-                            // start the thread.
-                            t.start();
-
-                            onlineMessage();
-
-                            break;
-
-                        }
-                        i++;
-
-                        if (i == userList.size()) {
-                            dos.println("CLOSE#2");
-                            s.close();
-                            break;
-                        }
-
-
+                    if (!userService.usernameExists(username)) {
+                        dos.println("CLOSE#2");
+                        s.close();
+                        break;
                     }
 
-
+                    System.out.println("Creating a new handler for this client...");
+                    // Create a new handler object for handling this request.
+                    ClientHandler mtch = new ClientHandler(s, username, dis, dos);
+                    // Create a new Thread with this object.
+                    Thread t = new Thread(mtch);
+                    System.out.println("Adding this client to active client list");
+                    // add this client to active clients list
+                    ar.add(mtch);
+                    // start the thread.
+                    t.start();
+                    onlineMessage();
+                    return;
                 }
 
-
-                if (!cmd.equals("CONNECT")) {
-                    dos.println("CLOSE#1");
-                    s.close();
-
-                }
-
+                dos.println("CLOSE#1");
+                s.close();
             } catch (Exception e) {
                 s.close();
             }
