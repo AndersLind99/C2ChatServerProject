@@ -58,8 +58,9 @@ public class ChatServer {
                 }
 
                 dos.println("CLOSE#1");
-                s.close();
             } catch (Exception e) {
+                // Intentionally swallowing the exception
+            } finally {
                 s.close();
             }
         }
