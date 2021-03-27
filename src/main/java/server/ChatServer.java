@@ -115,7 +115,6 @@ class ClientHandler implements Runnable {
         this.name = name;
         this.s = s;
         this.isloggedin = true;
-
     }
 
     public String getName() {
@@ -123,58 +122,27 @@ class ClientHandler implements Runnable {
     }
 
     public void close(int i) throws IOException {
-
         switch (i) {
-
-            // normal close
-            case 0: {
+            case 0:
                 dos.println("CLOSE#0");
-                this.isloggedin = false;
-                this.s.close();
-                this.dis.close();
-                this.dos.close();
-                ChatServer.onlineMessage();
                 break;
-            }
-            // Illegal input was received
-            case 1: {
+            case 1:
                 dos.println("CLOSE#1");
-                this.isloggedin = false;
-                this.s.close();
-                this.dis.close();
-                this.dos.close();
-                ChatServer.onlineMessage();
                 break;
-            }
-            // User not found
-            case 2: {
+            case 2:
                 dos.println("CLOSE#2");
-                this.isloggedin = false;
-                this.s.close();
-                this.dis.close();
-                this.dos.close();
-                ChatServer.onlineMessage();
                 break;
-            }
-            // User closed client unexpectedly
-            case 3: {
-                this.isloggedin = false;
-                this.s.close();
-                this.dis.close();
-                this.dos.close();
-                ChatServer.onlineMessage();
-                break;
-            }
-
-
         }
 
-
+        this.isloggedin = false;
+        this.s.close();
+        this.dis.close();
+        this.dos.close();
+        ChatServer.onlineMessage();
     }
 
     @Override
     public void run() {
-
         String received;
 
         while (true) {
@@ -240,11 +208,8 @@ class ClientHandler implements Runnable {
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
-
             }
-
         }
-
     }
 }
 
