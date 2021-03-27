@@ -12,6 +12,11 @@ public class ChatServer {
     // Vector to store active clients
     static Vector<ClientHandler> ar = new Vector<>();
 
+    public static void enqueue(Runnable r) {
+        Thread t = new Thread(r);
+        t.start();
+    }
+
 
     public static void main(String[] args) throws IOException {
         UserService userService = new UserService();
@@ -22,71 +27,38 @@ public class ChatServer {
         // running infinite loop for getting
         // client request
         while (true) {
-            // Accept the incoming request
             Socket s = ss.accept();
-
             System.out.println("New client request received : " + s);
-
-            // obtain input and output streams
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            PrintWriter dos = new PrintWriter(s.getOutputStream(),true);
-            StringTokenizer st = new StringTokenizer(dis.readLine(), "#");
-            String cmd = st.nextToken();
-
-            try {
-                if (cmd.equals("CONNECT")) {
-                    String username = st.nextToken();
-                    if (!userService.usernameExists(username)) {
-                        dos.println("CLOSE#2");
-                        s.close();
-                        break;
-                    }
-
-                    System.out.println("Creating a new handler for this client...");
-                    // Create a new handler object for handling this request.
-                    ClientHandler mtch = new ClientHandler(s, username, dis, dos);
-                    // Create a new Thread with this object.
-                    Thread t = new Thread(mtch);
-                    System.out.println("Adding this client to active client list");
-                    // add this client to active clients list
-                    ar.add(mtch);
-                    // start the thread.
-                    t.start();
-                    onlineMessage();
-                    return;
-                }
-
-                dos.println("CLOSE#1");
-            } catch (Exception e) {
-                // Intentionally swallowing the exception
-            } finally {
+            ClientHandler handler = ClientHandler.tryAccept(s, userService);
+            if (handler == null) {
+                // We failed to add the client.
                 s.close();
+                continue;
             }
+
+            System.out.println("Adding this client to active client list");
+            ar.add(handler);
+            ChatServer.enqueue(handler);
+            onlineMessage();
         }
     }
 
     public static void onlineMessage() throws IOException {
-
         int vectorSize = ChatServer.ar.size(); // sætter vores vector størerelse fast til en variabel
         int checks = 0;
         StringBuilder stringBuilder = new StringBuilder(); // laver string builder.
         for (ClientHandler allMc : ChatServer.ar) { //gennemgår vores clientliste
-
             checks++;
-
             // tilføjer navne til vores online besked.
-
             if (allMc.isloggedin == true && vectorSize == checks) {
                 stringBuilder.append(allMc.getName());
                 break;
             }
 
             //tilføjer det sidste navn I listen.
-
             if (allMc.isloggedin == true && vectorSize > checks) {
                 stringBuilder.append(allMc.getName() + ",");
             }
-
         }
 
         // sender ONLINE besked ud til alle
@@ -95,10 +67,7 @@ public class ChatServer {
                 allMc.dos.println("ONLINE#" + stringBuilder.toString());
             }
         }
-
     }
-
-
 }
 
 // ClientHandler class
@@ -108,6 +77,39 @@ class ClientHandler implements Runnable {
     final PrintWriter dos;
     Socket s;
     boolean isloggedin;
+
+
+    /**
+     * Try to accept the connection. Returns false if the connection is rejected. for any reason.
+     * @param userService
+     * @return
+     */
+    static ClientHandler tryAccept(Socket s, UserService userService) {
+        DataInputStream dis = new DataInputStream(s.getInputStream());
+        PrintWriter dos = new PrintWriter(s.getOutputStream(),true);
+        StringTokenizer st = new StringTokenizer(dis.readLine(), "#");
+        String cmd = st.nextToken();
+
+        try {
+            if (cmd.equals("CONNECT")) {
+                String username = st.nextToken();
+                if (!userService.usernameExists(username)) {
+                    dos.println("CLOSE#2");
+                    s.close();
+                    break;
+                }
+
+                return new ClientHandler(s, usenrame, dis, dos);
+            }
+
+            dos.println("CLOSE#1");
+        } catch (Exception e) {
+            // Intentionally swallowing the exception.
+        } finally {
+            // Hitting here means that the client failed to be accepted.
+            return null;
+        }
+    }
 
     // constructor
     public ClientHandler(Socket s, String name, DataInputStream dis, PrintWriter dos) {
