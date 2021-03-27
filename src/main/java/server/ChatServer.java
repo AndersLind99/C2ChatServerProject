@@ -18,13 +18,12 @@ public class ChatServer {
         // server is listening on port 8000
         ServerSocket ss = new ServerSocket(8000);
         System.out.println("Server started");
-        Socket s;
 
         // running infinite loop for getting
         // client request
         while (true) {
             // Accept the incoming request
-            s = ss.accept();
+            Socket s = ss.accept();
 
             System.out.println("New client request received : " + s);
 
